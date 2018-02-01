@@ -1,4 +1,4 @@
-﻿///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
 // File:        main.cpp
 // Description: Dijkstra's shortest Path Algorithm.
 // Author:      ZhiyangLee
@@ -25,13 +25,13 @@ using std::queue;
 
 typedef struct _vertoceNode
 {
-	unsigned short		isObstacle;
-	unsigned short		visited;
-	size_t				row_index;
-	size_t				col_index;
-	size_t				distance;
-	_vertoceNode		*pervNode;
-	char				name[0];
+	unsigned short      isObstacle;
+	unsigned short      visited;
+	size_t              row_index;
+	size_t              col_index;
+	size_t              distance;
+	_vertoceNode        *pervNode;
+	char                name[0];
 } VertoceNode;
 
 static VertoceNode* graph[ROW_SIZE][COL_SIZE];
@@ -83,7 +83,7 @@ void destryGraph()
 
 void placeObstaclesToGraph()
 {
-
+	//放置障碍物
 	graph[0][2]->isObstacle = IS_TRUE;
 	graph[0][3]->isObstacle = IS_TRUE;
 	graph[0][4]->isObstacle = IS_TRUE;
@@ -172,10 +172,6 @@ vector<VertoceNode *> *findShortestPath(VertoceNode *srcNode, VertoceNode *dstNo
 	{
 		VertoceNode *v = q.front();
 		q.pop();
-
-		if (v->row_index == 3 && v->col_index == 6) {
-			int hit = 1;
-		}
 
 		v->visited = IS_TRUE;
 
