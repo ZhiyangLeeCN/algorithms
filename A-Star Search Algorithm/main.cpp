@@ -5,8 +5,6 @@
 #include <stack>
 #include <string>
 
-#include <cmath>
-
 using std::vector;
 using std::set;
 using std::stack;
@@ -31,11 +29,11 @@ public:
 
 	bool   is_obstacle_;
 	bool   is_closed_;
-	std::size_t row_index_;
-	std::size_t col_index_;
-	std::size_t f;
-	std::size_t g;
-	std::size_t h;
+	int    row_index_;
+	int    col_index_;
+	double f;
+	double g;
+	double h;
 	string display_mark_;
 	GraphNode *pervNode;
 };
@@ -49,14 +47,14 @@ public:
 	{
 	};
 
-	Graph(std::size_t rows, std::size_t cols) :
+	Graph(int rows, int cols) :
 		rows_(rows),
 		cols_(cols)
 	{
 		graph_ = (GraphNode **)::operator new(rows * cols * sizeof(GraphNode *));
-		for (std::size_t i = 0; i < rows_; i++)
+		for (int i = 0; i < rows_; i++)
 		{
-			for (std::size_t j = 0; j < cols_; j++)
+			for (int j = 0; j < cols_; j++)
 			{
 				this->PutNode(nullptr, i, j);
 			}
@@ -65,9 +63,9 @@ public:
 
 	~Graph()
 	{
-		for (std::size_t i = 0; i < rows_; i++)
+		for (int i = 0; i < rows_; i++)
 		{
-			for (std::size_t j = 0; j < cols_; j++)
+			for (int j = 0; j < cols_; j++)
 			{
 				GraphNode *node = this->FindByIndex(i, j);
 				if (nullptr != node) {
@@ -81,26 +79,34 @@ public:
 
 	void Print()
 	{
-		std::cout << "\t";
-		for (std::size_t i = 0; i < cols_; i++)
-		{
-			std::cout << i << "\t";
-		}
-		std::cout << "\n";
+		//std::cout << "\t";
+		//for (int i = 0; i < cols_; i++)
+		//{
+		//	std::cout << i << "\t";
+		//}
+		//std::cout << "\n";
 
-		for (std::size_t i = 0; i < rows_; i++)
+		for (int i = 0; i < rows_; i++)
 		{
-			std::cout << i << "\t";
-			for (std::size_t j = 0; j < cols_; j++)
+			//std::cout << i << "\t";
+			for (int j = 0; j < cols_; j++)
 			{
 				GraphNode *node = this->FindByIndex(i, j);
 				if (nullptr != node) {
 					
-					std::cout << node->display_mark_ << "\t";
+					if (node->is_obstacle_) {
+
+						std::cout << "W";
+
+					} else {
+
+						std::cout << node->display_mark_;
+
+					}
 
 				} else {
 
-					std::cout << "N\t";
+					std::cout << "N";
 
 				}
 			}
@@ -123,7 +129,7 @@ public:
 
 	}
 
-	void PutNode(GraphNode *graphNode, std::size_t row_index, std::size_t col_index)
+	void PutNode(GraphNode *graphNode, int row_index, int col_index)
 	{
 		if (!CheckIndexIsValid(row_index, col_index)) {
 			throw "graph::PutNode error[index out of bounds]";
@@ -138,13 +144,13 @@ public:
 
 	}
 
-	std::size_t estimatedDistance(GraphNode *currentNode, GraphNode *dstNode)
+	double estimatedDistance(GraphNode *currentNode, GraphNode *dstNode)
 	{
-		long double cur_row_index = currentNode->row_index_;
-		long double cur_col_index = currentNode->col_index_;
+		double cur_row_index = currentNode->row_index_;
+		double cur_col_index = currentNode->col_index_;
 
-		long double dst_row_index = dstNode->row_index_;
-		long double dst_col_index = dstNode->col_index_;
+		double dst_row_index = dstNode->row_index_;
+		double dst_col_index = dstNode->col_index_;
 
 		return std::abs(cur_row_index - dst_row_index) + std::abs(cur_col_index - dst_col_index);
 	}
@@ -166,7 +172,6 @@ public:
 			GraphNode *currentNode = *openList.begin();
 			openList.erase(openList.begin());
 
-			currentNode->display_mark_ = "S";
 			currentNode->is_closed_ = true;
 
 			//find target
@@ -176,15 +181,19 @@ public:
 				break;
 			}
 
+			if (currentNode->row_index_ == 0 && currentNode->col_index_ == 5) {
+				int hit = 0;
+			}
+
 			vector<GraphNode *> *neighbors = this->GetNeighborsByNode(currentNode);
 			if (!neighbors->empty()) {
 
 				for (auto iter = neighbors->begin(); iter != neighbors->end(); iter++)
 				{
 					GraphNode *nNode = *iter;
-					std::size_t nG = currentNode->g + 1;
-					std::size_t nH = this->estimatedDistance(nNode, dstNode);
-					std::size_t nF = nG + nH;
+					double nG = currentNode->g + 1;
+					double nH = this->estimatedDistance(nNode, dstNode);
+					double nF = nG + nH;
 
 					if (nNode->f > nF) {
 
@@ -268,7 +277,7 @@ public:
 		return result;
 	}
 
-	GraphNode *FindByIndex(std::size_t row_index, std::size_t col_index)
+	GraphNode *FindByIndex(int row_index, int col_index)
 	{
 		if (!CheckIndexIsValid(row_index, col_index)) {
 			return nullptr;
@@ -280,7 +289,7 @@ public:
 		}
 	}
 
-	bool CheckIndexIsValid(std::size_t row_index, std::size_t col_index)
+	bool CheckIndexIsValid(int row_index, int col_index)
 	{
 		if (row_index > rows_ || col_index > cols_) {
 			return false;
@@ -290,28 +299,28 @@ public:
 		}
 	}
 
-	std::size_t GetRows()
+	int GetRows()
 	{
 		return rows_;
 	}
 
-	std::size_t GetCols()
+	int GetCols()
 	{
 		return cols_;
 	}
 
 private:
-	std::size_t rows_;
-	std::size_t cols_;
+	int rows_;
+	int cols_;
 	GraphNode **graph_;
 
-	void SetLocation(GraphNode *graphNode, std::size_t row_index, std::size_t col_index)
+	void SetLocation(GraphNode *graphNode, int row_index, int col_index)
 	{
 		GraphNode **locationAddr = this->GetLoaction(row_index, col_index);
 		*locationAddr = graphNode;
 	}
 
-	GraphNode **GetLoaction(std::size_t row_index, std::size_t col_index)
+	GraphNode **GetLoaction(int row_index, int col_index)
 	{
 		return (graph_ + (row_index * cols_) + col_index);
 	}
@@ -322,13 +331,23 @@ int main() {
 
 	Graph *graph = new Graph;
 
-	for (std::size_t i = 0; i < graph->GetRows(); i++)
+	for (int i = 0; i < graph->GetRows(); i++)
 	{
-		for (std::size_t j = 0; j < graph->GetCols(); j++)
+		for (int j = 0; j < graph->GetCols(); j++)
 		{
 			graph->PutNode(new GraphNode, i, j);
 		}
 	}
+
+	graph->FindByIndex(1, 2)->is_obstacle_ = true;
+	graph->FindByIndex(1, 3)->is_obstacle_ = true;
+	graph->FindByIndex(1, 4)->is_obstacle_ = true;
+	graph->FindByIndex(2, 4)->is_obstacle_ = true;
+	graph->FindByIndex(3, 4)->is_obstacle_ = true;
+	graph->FindByIndex(4, 4)->is_obstacle_ = true;
+	graph->FindByIndex(5, 4)->is_obstacle_ = true;
+	graph->FindByIndex(5, 3)->is_obstacle_ = true;
+	graph->FindByIndex(5, 2)->is_obstacle_ = true;
 
 	graph->Print();
 
@@ -343,6 +362,12 @@ int main() {
 	}
 
 	graph->Print();
+
+	for (auto iter = pathList->begin(); iter != pathList->end(); iter++)
+	{
+		GraphNode *node = *iter;
+		std::cout << "(" << node->row_index_ << ", " << node->col_index_ << ", [f:" << node->f << ", g:" << node->g << ", h:" << node->h << "]" << ")";
+	}
 
 	int pasue;
 	std::cin >> pasue;
