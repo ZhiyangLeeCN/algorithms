@@ -1,10 +1,11 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include <iostream>
 
 #include <vector>
 #include <set>
 #include <stack>
 #include <string>
+
+#include <cmath>
 
 using std::vector;
 using std::set;
@@ -30,11 +31,11 @@ public:
 
 	bool   is_obstacle_;
 	bool   is_closed_;
-	size_t row_index_;
-	size_t col_index_;
-	size_t f;
-	size_t g;
-	size_t h;
+	std::size_t row_index_;
+	std::size_t col_index_;
+	std::size_t f;
+	std::size_t g;
+	std::size_t h;
 	string display_mark_;
 	GraphNode *pervNode;
 };
@@ -48,14 +49,14 @@ public:
 	{
 	};
 
-	Graph(size_t rows, size_t cols) :
+	Graph(std::size_t rows, std::size_t cols) :
 		rows_(rows),
 		cols_(cols)
 	{
 		graph_ = (GraphNode **)::operator new(rows * cols * sizeof(GraphNode *));
-		for (size_t i = 0; i < rows_; i++)
+		for (std::size_t i = 0; i < rows_; i++)
 		{
-			for (size_t j = 0; j < cols_; j++)
+			for (std::size_t j = 0; j < cols_; j++)
 			{
 				this->PutNode(nullptr, i, j);
 			}
@@ -64,9 +65,9 @@ public:
 
 	~Graph()
 	{
-		for (size_t i = 0; i < rows_; i++)
+		for (std::size_t i = 0; i < rows_; i++)
 		{
-			for (size_t j = 0; j < cols_; j++)
+			for (std::size_t j = 0; j < cols_; j++)
 			{
 				GraphNode *node = this->FindByIndex(i, j);
 				if (nullptr != node) {
@@ -80,32 +81,32 @@ public:
 
 	void Print()
 	{
-		printf("\t");
-		for (size_t i = 0; i < cols_; i++)
+		std::cout << "\t";
+		for (std::size_t i = 0; i < cols_; i++)
 		{
-			printf("%d\t", i);
+			std::cout << i << "\t";
 		}
-		printf("\n");
+		std::cout << "\n";
 
-		for (size_t i = 0; i < rows_; i++)
+		for (std::size_t i = 0; i < rows_; i++)
 		{
-			printf("%d\t", i);
-			for (size_t j = 0; j < cols_; j++)
+			std::cout << i << "\t";
+			for (std::size_t j = 0; j < cols_; j++)
 			{
 				GraphNode *node = this->FindByIndex(i, j);
 				if (nullptr != node) {
 					
-					printf("%s\t", node->display_mark_.c_str());
+					std::cout << node->display_mark_ << "\t";
 
 				} else {
 
-					printf("%s\t", "N");
+					std::cout << "N\t";
 
 				}
 			}
-			printf("\n");
+			std::cout << "\n";
 		}
-		printf("\n");
+		std::cout << "\n";
 
 	}
 
@@ -122,7 +123,7 @@ public:
 
 	}
 
-	void PutNode(GraphNode *graphNode, size_t row_index, size_t col_index)
+	void PutNode(GraphNode *graphNode, std::size_t row_index, std::size_t col_index)
 	{
 		if (!CheckIndexIsValid(row_index, col_index)) {
 			throw "graph::PutNode error[index out of bounds]";
@@ -137,13 +138,13 @@ public:
 
 	}
 
-	size_t estimatedDistance(GraphNode *currentNode, GraphNode *dstNode)
+	std::size_t estimatedDistance(GraphNode *currentNode, GraphNode *dstNode)
 	{
-		long long cur_row_index = currentNode->row_index_;
-		long long cur_col_index = currentNode->col_index_;
+		long double cur_row_index = currentNode->row_index_;
+		long double cur_col_index = currentNode->col_index_;
 
-		long long dst_row_index = dstNode->row_index_;
-		long long dst_col_index = dstNode->col_index_;
+		long double dst_row_index = dstNode->row_index_;
+		long double dst_col_index = dstNode->col_index_;
 
 		return std::abs(cur_row_index - dst_row_index) + std::abs(cur_col_index - dst_col_index);
 	}
@@ -181,9 +182,9 @@ public:
 				for (auto iter = neighbors->begin(); iter != neighbors->end(); iter++)
 				{
 					GraphNode *nNode = *iter;
-					size_t nG = currentNode->g + 1;
-					size_t nH = this->estimatedDistance(nNode, dstNode);
-					size_t nF = nG + nH;
+					std::size_t nG = currentNode->g + 1;
+					std::size_t nH = this->estimatedDistance(nNode, dstNode);
+					std::size_t nF = nG + nH;
 
 					if (nNode->f > nF) {
 
@@ -267,7 +268,7 @@ public:
 		return result;
 	}
 
-	GraphNode *FindByIndex(size_t row_index, size_t col_index)
+	GraphNode *FindByIndex(std::size_t row_index, std::size_t col_index)
 	{
 		if (!CheckIndexIsValid(row_index, col_index)) {
 			return nullptr;
@@ -279,7 +280,7 @@ public:
 		}
 	}
 
-	bool CheckIndexIsValid(size_t row_index, size_t col_index)
+	bool CheckIndexIsValid(std::size_t row_index, std::size_t col_index)
 	{
 		if (row_index > rows_ || col_index > cols_) {
 			return false;
@@ -289,28 +290,28 @@ public:
 		}
 	}
 
-	size_t GetRows()
+	std::size_t GetRows()
 	{
 		return rows_;
 	}
 
-	size_t GetCols()
+	std::size_t GetCols()
 	{
 		return cols_;
 	}
 
 private:
-	size_t rows_;
-	size_t cols_;
+	std::size_t rows_;
+	std::size_t cols_;
 	GraphNode **graph_;
 
-	void SetLocation(GraphNode *graphNode, size_t row_index, size_t col_index)
+	void SetLocation(GraphNode *graphNode, std::size_t row_index, std::size_t col_index)
 	{
 		GraphNode **locationAddr = this->GetLoaction(row_index, col_index);
 		*locationAddr = graphNode;
 	}
 
-	GraphNode **GetLoaction(size_t row_index, size_t col_index)
+	GraphNode **GetLoaction(std::size_t row_index, std::size_t col_index)
 	{
 		return (graph_ + (row_index * cols_) + col_index);
 	}
@@ -321,9 +322,9 @@ int main() {
 
 	Graph *graph = new Graph;
 
-	for (size_t i = 0; i < graph->GetRows(); i++)
+	for (std::size_t i = 0; i < graph->GetRows(); i++)
 	{
-		for (size_t j = 0; j < graph->GetCols(); j++)
+		for (std::size_t j = 0; j < graph->GetCols(); j++)
 		{
 			graph->PutNode(new GraphNode, i, j);
 		}
@@ -343,7 +344,8 @@ int main() {
 
 	graph->Print();
 
-	getchar();
+	int pasue;
+	std::cin >> pasue;
 
 	delete pathList;
 	delete graph;
