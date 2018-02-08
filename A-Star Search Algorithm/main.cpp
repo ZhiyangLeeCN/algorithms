@@ -14,6 +14,19 @@ class GraphNode {
 
 public:
 
+	GraphNode(int row_index, int col_index) : 
+		is_obstacle_(false),
+		is_closed_(false),
+		row_index_(row_index),
+		col_index_(col_index),
+		f(UINT_MAX),
+		g(UINT_MAX),
+		h(UINT_MAX),
+		display_mark_("-"),
+		pervNode(nullptr) 
+	{
+	}
+
 	GraphNode() :
 		is_obstacle_(false),
 		is_closed_(false),
@@ -36,6 +49,11 @@ public:
 	double h;
 	string display_mark_;
 	GraphNode *pervNode;
+
+	bool operator < (const GraphNode &right) const {
+		return this->f < right.f;
+	}
+
 };
 
 class Graph {
@@ -79,16 +97,16 @@ public:
 
 	void Print()
 	{
-		//std::cout << "\t";
-		//for (int i = 0; i < cols_; i++)
-		//{
-		//	std::cout << i << "\t";
-		//}
-		//std::cout << "\n";
+		std::cout << " ";
+		for (int i = 0; i < cols_; i++)
+		{
+			std::cout << i;
+		}
+		std::cout << "\n";
 
 		for (int i = 0; i < rows_; i++)
 		{
-			//std::cout << i << "\t";
+			std::cout << i;
 			for (int j = 0; j < cols_; j++)
 			{
 				GraphNode *node = this->FindByIndex(i, j);
@@ -160,7 +178,12 @@ public:
 	{
 
 		bool reached = false;
-		set<GraphNode *> openList;
+		auto setCompFunction = [](const GraphNode *left, const GraphNode *right) -> bool {
+
+			return left->f < right->f;
+
+		};
+		set<GraphNode *, decltype(setCompFunction)> openList(setCompFunction);
 		
 		srcNode->f = 0;
 		srcNode->g = 0;
@@ -179,10 +202,6 @@ public:
 				currentNode->row_index_ == dstNode->row_index_) {
 				reached = true;
 				break;
-			}
-
-			if (currentNode->row_index_ == 0 && currentNode->col_index_ == 5) {
-				int hit = 0;
 			}
 
 			vector<GraphNode *> *neighbors = this->GetNeighborsByNode(currentNode);
@@ -240,25 +259,25 @@ public:
 		vector<GraphNode *> filter;
 		vector<GraphNode *> *result = new vector<GraphNode *>;
 
-		//×ó
+		//å·¦
 		if (node->col_index_ > 0) {
 			GraphNode *leftNode = this->FindByIndex(node->row_index_, node->col_index_ - 1);
 			filter.push_back(leftNode);
 		}
 
-		//ÓÒ
+		//å³
 		if (node->col_index_ < cols_ - 1) {
 			GraphNode *rightNode = this->FindByIndex(node->row_index_, node->col_index_ + 1);
 			filter.push_back(rightNode);
 		}
 
-		//ÉÏ
+		//ä¸Š
 		if (node->row_index_ > 0) {
 			GraphNode *topNode = this->FindByIndex(node->row_index_ - 1, node->col_index_);
 			filter.push_back(topNode);
 		}
 
-		//ÏÂ
+		//ä¸‹
 		if (node->row_index_ < rows_ - 1) {
 			GraphNode *bottomNode = this->FindByIndex(node->row_index_ + 1, node->col_index_);
 			filter.push_back(bottomNode);
@@ -329,7 +348,7 @@ private:
 
 int main() {
 
-	Graph *graph = new Graph;
+	Graph *graph = new Graph(8, 8);
 
 	for (int i = 0; i < graph->GetRows(); i++)
 	{
@@ -339,6 +358,7 @@ int main() {
 		}
 	}
 
+	//æ”¾ç½®éšœç¢ç‰©
 	graph->FindByIndex(1, 2)->is_obstacle_ = true;
 	graph->FindByIndex(1, 3)->is_obstacle_ = true;
 	graph->FindByIndex(1, 4)->is_obstacle_ = true;
@@ -363,12 +383,6 @@ int main() {
 
 	graph->Print();
 
-	for (auto iter = pathList->begin(); iter != pathList->end(); iter++)
-	{
-		GraphNode *node = *iter;
-		std::cout << "(" << node->row_index_ << ", " << node->col_index_ << ", [f:" << node->f << ", g:" << node->g << ", h:" << node->h << "]" << ")";
-	}
-
 	int pasue;
 	std::cin >> pasue;
 
@@ -378,3 +392,5 @@ int main() {
 	return 0;
 
 }
+
+
